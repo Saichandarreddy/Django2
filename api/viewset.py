@@ -4,7 +4,7 @@ from api.serializers import UserSerializer
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('id','name','mobile')
+        fields = ('id','display_name','mobile')
 
 class UserViewSet(viewsets.ModelViewSet):
     """
