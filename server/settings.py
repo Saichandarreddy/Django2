@@ -146,8 +146,8 @@ USE_TZ = True
 
 STATIC_URL = '/web/'
 
-MEDIA_URL = '/images/'
-MEDIA_ROOT = '/home/abhilash/Documents/FullStack/Learn/res/images/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 60*30

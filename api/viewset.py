@@ -1,14 +1,10 @@
-from django.shortcuts import render
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
+from api.headers import *
 from api.serializers import UserSerializer
-from rest_framework.decorators import api_view, permission_classes
-from django.contrib import auth#.auth import authenticate,login,logout
-from rest_framework import status
-from rest_framework.response import Response
-import django
-from django.http import HttpResponse
-from rest_framework.permissions import IsAuthenticated
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ('id','name','mobile')
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -49,5 +45,33 @@ def logout(request):
         response.delete_cookie('sessionid')
         response.delete_cookie('csrftoken')
         return Response({'message':'Success'},status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
+
+@permission_classes((IsAuthenticated, ))
+@api_view(['post'])
+def createuser(request):
+    try:
+        with transaction.atomic(savepoint=False):
+            if request.method == 'POST':
+                usrp = UserProfile()
+                usrp.create(request.data)
+                return Response({'message':'User created'},status=status.HTTP_200_OK)
+            else:
+                return Response({'error':{'code':5000,'message':'Error-{0}'.format('Invalid Request')}},status=status.HTTP_200_OK)
+    except Django2Exception as e:
+        print(e,'error')
+        return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
+
+@api_view(['get'])
+def getUsers(request):
+    try:
+        queryset = UserProfile.objects.all()
+        users = UserProfileSerializer(queryset,many=True)
+        return Response(users.data,status=status.HTTP_200_OK)
+    except DjangoException as e:
+        return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
