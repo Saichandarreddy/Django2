@@ -19,10 +19,14 @@ def fileList(request):
 def fileUpload(request):
     try:
         with transaction.atomic(savepoint=False):
-            if request.method == 'POST' and request.FILES['myfile']:
-                imgobj = Images()
-                imgobj.image = request.FILES['myfile']
-                imgobj.save()
+            print(request.FILES.getlist('myfiles'))
+            if request.method == 'POST' and request.FILES.getlist('myfiles'):
+                for myfile in request.FILES.getlist('myfiles'):
+                    #if Images.objects.filter(image= 'images/'+myfile.name.replace(' ','_')).exists():
+                    #    return Response({'error':{'code':5000,'message':'Error-{0}'.format('File exists')}},status=status.HTTP_200_OK)
+                    imgobj = Images()
+                    imgobj.image = myfile
+                    imgobj.save()
                 return Response({'message':'Upload Success'},status=status.HTTP_200_OK)
             else:
                 return Response({'error':{'code':5000,'message':'Error-{0}'.format('Invalid Request')}},status=status.HTTP_200_OK)

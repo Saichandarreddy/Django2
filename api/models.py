@@ -38,13 +38,13 @@ class UserProfile(models.Model):
                 raise Django2Exception(code = 4005,message='Field missing - {}'.format(field))
         
         if  django.contrib.auth.models.User.objects.filter(username=data['username']).exists():
-            raise Django2Exception(code = 4005,message='Duplicate User Already exists - [{0}]'.format(data['username']))
+            raise Django2Exception(code = 4005,message='Duplicate User Already exists - {0}'.format(data['username']))
     
         elif django.contrib.auth.models.User.objects.filter(email=data['email']).exists():
-            raise Django2Exception(code = 4005,message='Duplicate User email Already exists - [{0}]'.format(data['email']))
+            raise Django2Exception(code = 4005,message='Duplicate User email Already exists - {0}'.format(data['email']))
         
         elif UserProfile.objects.filter(mobile=data['mobile']).exists():
-            raise Django2Exception(code = 4005,message='Duplicate User email Already exists - [{0}]'.format(data['mobile']))
+            raise Django2Exception(code = 4005,message='Duplicate User email Already exists - {0}'.format(data['mobile']))
 
         else:
             auth_user = django.contrib.auth.models.User.objects.create_user(

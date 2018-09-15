@@ -58,12 +58,11 @@ def createuser(request):
                 usrp.create(request.data)
                 return Response({'message':'User created'},status=status.HTTP_200_OK)
             else:
-                return Response({'error':{'code':5000,'message':'Error-{0}'.format('Invalid Request')}},status=status.HTTP_200_OK)
+                return Response({'error':{'code':5000,'message':'Error -> {0}'.format('Invalid Request')}},status=status.HTTP_200_OK)
     except Django2Exception as e:
-        print(e,'error')
-        return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
+        return Response({'error':{'code':e.code,'message':'Error -> {0}'.format(e.message)}},status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
+        return Response({'error':{'code':5000,'message':'Error -> {0}'.format(e)}},status=status.HTTP_200_OK)
 
 @api_view(['get'])
 def getUsers(request):
