@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^fileUpload/',fileviewset.fileUpload),
     url(r'^fileUpdate/',fileviewset.fileUpdate),
     url(r'^fileDelete/',fileviewset.fileDelete),
+    url(r'^pdfUpload/',fileviewset.pdfUpload),
     url(r'^createUser/',viewset.createuser),
     url(r'^getUsers/',viewset.getUsers),
     #url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

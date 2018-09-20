@@ -1,5 +1,9 @@
 from api.headers import *
 from rest_framework.decorators import detail_route, list_route
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,6 +11,7 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ('id','image','uploaded_at')
 
 @api_view(['get'])
+@permission_classes((IsAuthenticated,))
 def fileList(request):
     try:
         queryset = Images.objects.all()
@@ -16,6 +21,7 @@ def fileList(request):
         return Response({'error':{'code':5000,'message':'Generic System Failure-{0}'.format(e)}},status=status.HTTP_200_OK)
     
 @api_view(['post'])
+@permission_classes((IsAuthenticated,))
 def fileUpload(request):
     try:
         with transaction.atomic(savepoint=False):
@@ -34,6 +40,7 @@ def fileUpload(request):
         return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
         
 @api_view(['post'])
+@permission_classes((IsAuthenticated,))
 def fileDelete(request):
     try:
         with transaction.atomic(savepoint=False):
@@ -50,6 +57,7 @@ def fileDelete(request):
         return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
         
 @api_view(['post'])
+@permission_classes((IsAuthenticated,))
 def fileUpdate(request):
     try:
         with transaction.atomic(savepoint=False):
@@ -67,3 +75,27 @@ def fileUpdate(request):
         return Response({'error':{'code':5000,'message':'Error-{0}'.format('File not found')}},status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
+
+@api_view(['post'])
+@permission_classes((IsAuthenticated,))
+def pdfUpload(request):
+    try:
+        with transaction.atomic(savepoint=False):
+            if request.method == 'POST' and request.FILES['myfile']:
+                myfile = request.FILES['myfile']
+                try:
+                    path = settings.MEDIA_ROOT+'/Pdfs/'+myfile.name
+                    os.remove(path)
+                    print('deleted -',myfile.name)
+                    message = 'Updated'
+                except FileNotFoundError as e:
+                    message = 'Created'
+                    pass
+                fs = FileSystemStorage(location=settings.MEDIA_ROOT+'/Pdfs/')
+                filename = fs.save(myfile.name, myfile)
+                return Response({'message':'{}-{}'.format(message,filename)},status=status.HTTP_200_OK)
+            else:
+                return Response({'error':{'code':5000,'message':'Error-{0}'.format('Invalid Request')}},status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
+

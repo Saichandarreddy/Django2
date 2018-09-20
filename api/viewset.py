@@ -1,5 +1,7 @@
 from api.headers import *
 from api.serializers import UserSerializer
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,7 +15,6 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
 
-@permission_classes((IsAuthenticated, ))
 @api_view(['post'])
 def login(request):
     try:
@@ -48,7 +49,7 @@ def logout(request):
     except Exception as e:
         return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
 
-@permission_classes((IsAuthenticated, ))
+
 @api_view(['post'])
 def createuser(request):
     try:
@@ -65,6 +66,7 @@ def createuser(request):
         return Response({'error':{'code':5000,'message':'Error -> {0}'.format(e)}},status=status.HTTP_200_OK)
 
 @api_view(['get'])
+@permission_classes((IsAuthenticated,))
 def getUsers(request):
     try:
         queryset = UserProfile.objects.all()
