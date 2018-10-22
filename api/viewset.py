@@ -2,6 +2,7 @@ from api.headers import *
 from api.serializers import UserSerializer
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.csrf import csrf_exempt
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,12 +26,13 @@ def login(request):
             auth.login(request, user)
             if not request.session.session_key:
                 session = request.session.create()
+                session = request.session.session_key
             else:
                 session = request.session.session_key
                 request.session.set_expiry(60*30)
             resp={}
-            resp["session_key"] = request.session
-            resp["csrf"]= django.middleware.csrf.get_token(request)
+            resp["session_key"] = session
+            resp["csrftoken"]= django.middleware.csrf.get_token(request)
             resp['message']='Login Successful'
             return Response(resp,status=status.HTTP_200_OK)
         else:
@@ -38,7 +40,9 @@ def login(request):
     except Exception as e:
         return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
 
+
 @api_view(['get'])
+@csrf_exempt
 def logout(request):
     try:
         auth.logout(request)

@@ -1,27 +1,28 @@
 from api.headers import *
+from api.models import *
 from rest_framework.decorators import detail_route, list_route
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.csrf import csrf_exempt
 
-class ImageSerializer(serializers.ModelSerializer):
+class RecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Images
-        fields = ('id','image','uploaded_at')
+        fields = ('title','record','uploaded_at')
 
 @api_view(['get'])
-@permission_classes((IsAuthenticated,))
+#@permission_classes((IsAuthenticated,))
 def fileList(request):
     try:
-        queryset = Images.objects.all()
-        images = ImageSerializer(queryset,many=True)
-        return Response(images.data,status=status.HTTP_200_OK)
+        queryset = Records.objects.all()
+        images = RecordSerializer(queryset.data,status=status.HTTP_200_OK)
     except Exception as e :
         return Response({'error':{'code':5000,'message':'Generic System Failure-{0}'.format(e)}},status=status.HTTP_200_OK)
     
 @api_view(['post'])
-@permission_classes((IsAuthenticated,))
+#@permission_classes((IsAuthenticated,))
 def fileUpload(request):
     try:
         with transaction.atomic(savepoint=False):
@@ -30,9 +31,15 @@ def fileUpload(request):
                 for myfile in request.FILES.getlist('myfiles'):
                     #if Images.objects.filter(image= 'images/'+myfile.name.replace(' ','_')).exists():
                     #    return Response({'error':{'code':5000,'message':'Error-{0}'.format('File exists')}},status=status.HTTP_200_OK)
-                    imgobj = Images()
-                    imgobj.image = myfile
-                    imgobj.save()
+                    if 'type' in request.data and request.data['type'] == 'image':
+                        imgobj = Images()
+                        imgobj.image = myfile
+                        imgobj.save()
+                    else:
+                        recobj = Records()
+                        recobj.title = request.data['title']
+                        recobj.record = myfile
+                        recobj.save()
                 return Response({'message':'Upload Success'},status=status.HTTP_200_OK)
             else:
                 return Response({'error':{'code':5000,'message':'Error-{0}'.format('Invalid Request')}},status=status.HTTP_200_OK)
@@ -40,7 +47,7 @@ def fileUpload(request):
         return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
         
 @api_view(['post'])
-@permission_classes((IsAuthenticated,))
+#@permission_classes((IsAuthenticated,))
 def fileDelete(request):
     try:
         with transaction.atomic(savepoint=False):
@@ -57,7 +64,7 @@ def fileDelete(request):
         return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
         
 @api_view(['post'])
-@permission_classes((IsAuthenticated,))
+#@permission_classes((IsAuthenticated,))
 def fileUpdate(request):
     try:
         with transaction.atomic(savepoint=False):
@@ -77,7 +84,7 @@ def fileUpdate(request):
         return Response({'error':{'code':5000,'message':'Error-{0}'.format(e)}},status=status.HTTP_200_OK)
 
 @api_view(['post'])
-@permission_classes((IsAuthenticated,))
+#@permission_classes((IsAuthenticated,))
 def pdfUpload(request):
     try:
         with transaction.atomic(savepoint=False):

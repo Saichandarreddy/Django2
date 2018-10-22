@@ -14,6 +14,20 @@ class Images(models.Model):
         os.remove(os.path.join(settings.MEDIA_ROOT, self.image.name))
         super(Images,self).delete(*args,**kwargs)  
 
+class Records(models.Model):
+
+    def _get_upload_to(self, filename):
+        return os.path.join(os.path.splitext(filename)[1][1:], filename)
+
+    title = models.CharField(max_length=45,null=True)
+    record = models.FileField(upload_to = _get_upload_to)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def delete(self,*args,**kwargs):
+        os.remove(os.path.join(settings.MEDIA_ROOT, self.record.name))
+        super(Records,self).delete(*args,**kwargs)  
+
+
 class UserProfile(models.Model):
     ACTIVE = 'A'
     INACTIVE ='I'
